@@ -1,0 +1,67 @@
+name: Publish NuGet package
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'If true, do a dry run (print version/changelog only)'
+        required: false
+        default: 'false'
+ 
+# Grant the workflow permissions to create tags and publish packages
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # fetch all history so we can compute semver from tags
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Setup Node (for semantic-release)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - name: Install JS deps
+        run: |
+          npm install --no-audit --no-fund --prefer-offline
+
+      - name: Semantic Release (handles changelog, tagging, release)
+        env:
+          GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NUGET_API_KEY: ${{ secrets.nuget_pat }}
+        run: |
+          set -euo pipefail
+          DRY="${{ github.event.inputs.dry_run || 'false' }}"
+          if [[ "$DRY" == 'true' ]]; then
+            echo "Running semantic-release in dry-run mode"
+            npx semantic-release --dry-run
+          else
+            echo "Running semantic-release"
+            npx semantic-release
+          fi

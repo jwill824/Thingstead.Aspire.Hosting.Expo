@@ -1,0 +1,14 @@
+{
+  "name": "thingstead-aspire-hosting-expo",
+  "private": true,
+  "devDependencies": {
+    "semantic-release": "^24.1.0",
+    "@semantic-release/changelog": "^6.0.1",
+    "@semantic-release/git": "^10.0.0",
+    "@semantic-release/github": "^9.0.0",
+    "@semantic-release/exec": "^7.1.0"
+  },
+  "scripts": {
+    "semantic-release": "semantic-release"
+  }
+}

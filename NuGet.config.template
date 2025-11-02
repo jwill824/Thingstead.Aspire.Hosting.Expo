@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <!--
+    Template NuGet.config for consuming the package from GitHub Packages.
+    Usage:
+      1. Copy this file to the consuming repository root as `NuGet.config` or merge the <packageSources>
+         and <packageSourceMapping> sections into your existing NuGet.config.
+      2. Do NOT add credentials or ClearTextPassword into the file when committing to source control.
+      3. Use a password manager CLI to retrieve the credentials to place in here
+
+    IMPORTANT: Do NOT store credentials in this file in source control. Use `dotnet nuget add source` to add
+    the feed with credentials locally, or configure the feed in CI using repository secrets.
+  -->
+
+  <packageSources>
+    <!-- Replace OWNER with your GitHub username or organization -->
+    <add key="github" value="https://nuget.pkg.github.com/OWNER/index.json" />
+    <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
+  </packageSources>
+
+  <!-- PackageSourceMapping ensures specific packages are resolved only from allowed sources. -->
+  <packageSourceMapping>
+    <packageSource key="github">
+      <!-- Exact package id mapping (case-insensitive) -->
+      <package pattern="Thingstead.Aspire.Hosting.Thingstead" />
+    </packageSource>
+    <packageSource key="nuget.org">
+      <!-- fallback for all other packages -->
+      <package pattern="*" />
+    </packageSource>
+  </packageSourceMapping>
+
+</configuration>
