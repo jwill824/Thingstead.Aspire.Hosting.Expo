@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/compare/v1.0.1...v1.0.2) (2025-11-03)
+
+
+### Bug Fixes
+
+* empty url; adding more robust xml docs ([217d8a5](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/commit/217d8a56cb839200e7494c6d0d6b767929733dd5))
+
 ## [1.0.1](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/compare/v1.0.0...v1.0.1) (2025-11-03)
 
 
