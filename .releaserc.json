@@ -5,8 +5,8 @@
     "@semantic-release/release-notes-generator",
     ["@semantic-release/changelog", { "changelogFile": "CHANGELOG.md" }],
     ["@semantic-release/exec", {
-      "prepareCmd": "\"sh\" -c \"rm -f ./artifacts/.nupkg && dotnet pack Thingstead.Aspire.Hosting.Expo.csproj -c Release -p:PackageVersion=${nextRelease.version} -o ./artifacts\"",
-      "publishCmd": "\"sh\" -c \"if [ -n '$NUGET_API_KEY' ]; then echo 'Using NUGET_API_KEY to push packages'; dotnet nuget push ./artifacts/*.nupkg -s https://nuget.pkg.github.com/$GITHUB_REPOSITORY_OWNER/index.json -k $NUGET_API_KEY --skip-duplicate; elif [ -n '$GITHUB_TOKEN' ]; then echo 'Using GITHUB_TOKEN to push packages'; dotnet nuget push ./artifacts/*.nupkg -s https://nuget.pkg.github.com/$GITHUB_REPOSITORY_OWNER/index.json -k $GITHUB_TOKEN --skip-duplicate; else echo 'No NUGET_API_KEY or GITHUB_TOKEN found; failing publish step' 1>&2; exit 1; fi\""
+      "prepareCmd": "\"sh\" -c \"rm -f ./artifacts/*.nupkg && dotnet pack Thingstead.Aspire.Hosting.Expo.csproj -c Release -p:PackageVersion=${nextRelease.version} -o ./artifacts\"",
+      "publishCmd": "\"sh\" -c \"dotnet nuget push ./artifacts/*.nupkg -s https://nuget.pkg.github.com/$GITHUB_REPOSITORY_OWNER/index.json -k $GITHUB_TOKEN --skip-duplicate\""
     }],
     ["@semantic-release/git", {
       "assets": ["CHANGELOG.md"],

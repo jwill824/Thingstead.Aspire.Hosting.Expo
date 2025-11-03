@@ -22,6 +22,7 @@
     <IncludeSymbols>false</IncludeSymbols>
     <IncludeSource>false</IncludeSource>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -32,6 +33,7 @@
 
   <!-- Include Dockerfile and entrypoint in the NuGet package and embed them as resources -->
   <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="/"/>
     <None Include="Dockerfile" Pack="true" PackagePath="contentFiles/any/any/" />
     <None Include="docker-entrypoint.sh" Pack="true" PackagePath="contentFiles/any/any/" />
     <EmbeddedResource Include="Dockerfile" />
