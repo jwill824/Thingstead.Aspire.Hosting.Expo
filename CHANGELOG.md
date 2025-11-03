@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/compare/v1.0.0...v1.0.1) (2025-11-03)
+
+
+### Bug Fixes
+
+* container runtime exception ([7b8ac01](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/commit/7b8ac0195225f9f8fd272215862cf4455baedcd8))
+
 # 1.0.0 (2025-11-02)
 
 
