@@ -1,5 +1,5 @@
-using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System.Diagnostics;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Thingstead.Aspire.Hosting.Expo.Utils;
 
 namespace Aspire.Hosting;
@@ -31,7 +31,7 @@ public static class ExpoResourceBuilderExtensions
     /// <param name="port"></param>
     /// <param name="targetPort"></param>
     /// <returns></returns>
-    public static IResourceBuilder<ExpoResource> AddExpo(
+    public static IResourceBuilder<ContainerResource> AddExpo(
         this IDistributedApplicationBuilder builder,
         string name,
         string url,
@@ -40,10 +40,9 @@ public static class ExpoResourceBuilderExtensions
         int targetPort = 8082)
     {
         ArgumentException.ThrowIfNullOrEmpty(buildContext);
-        var resource = new ExpoResource(name);
 
-    // Ensure embedded files are extracted and then point the builder at the appropriate build context
-    var resourceDir = _extractedResourceDir.Value;
+        // Ensure embedded files are extracted and then point the builder at the appropriate build context
+        var resourceDir = _extractedResourceDir.Value;
         // Use the provided build context and pass the packaged Dockerfile as the override dockerfile path.
         string dockerfilePathArg = Path.GetFullPath(Path.Combine(resourceDir, EmbeddedDockerfileName));
         string contextDir = buildContext;
@@ -80,8 +79,7 @@ public static class ExpoResourceBuilderExtensions
         }
 
         var rb = builder
-            .AddResource(resource)
-            .WithDockerfile(contextDir, dockerfilePathArg)
+            .AddDockerfile(name, contextDir, dockerfilePathArg)
             .WithBuildArg("EXPO_PORT", port)
             .WithEnvironment(nameof(EXPO_DEV), EXPO_DEV)
             .WithEnvironment("EXPO_PUBLIC_API_URL", () => url)
@@ -90,8 +88,6 @@ public static class ExpoResourceBuilderExtensions
 
         return rb;
     }
-
-    
 
     /// <summary>
     /// 
@@ -102,8 +98,8 @@ public static class ExpoResourceBuilderExtensions
     /// <param name="infoLogger"></param>
     /// <param name="errorLogger"></param>
     /// <returns></returns>
-    public static IResourceBuilder<ExpoResource> WithQrCommand(
-        this IResourceBuilder<ExpoResource> builder,
+    public static IResourceBuilder<ContainerResource> WithQrCommand(
+        this IResourceBuilder<ContainerResource> builder,
         Task<Uri?>? publicUrlTask = null,
         string? qrFilePath = null,
         Action<string>? infoLogger = null,
