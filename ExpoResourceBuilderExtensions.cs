@@ -5,11 +5,11 @@ using Thingstead.Aspire.Hosting.Expo.Utils;
 namespace Aspire.Hosting;
 
 /// <summary>
-/// Extension methods for adding and configuring an <see cref="ExpoResource"/> in an
-/// <see cref="IDistributedApplicationBuilder"/>. These are placed in the <c>Aspire.Hosting</c>
-/// namespace for discoverability when referencing the Aspire hosting packages.
+/// Provides extension methods to add and configure an Expo container resource and related
+/// commands for Aspire distributed applications. The extensions support using a Dockerfile
+/// packaged with this library while using a consumer-supplied build context for application
+/// source files.
 /// </summary>
-
 public static class ExpoResourceBuilderExtensions
 {
     private const string EXPO_DEV = "true";
@@ -19,22 +19,25 @@ public static class ExpoResourceBuilderExtensions
     private const string EmbeddedEntrypointName = "docker-entrypoint.sh";
 
     // Lazy extraction to temporary directory so we only write once per process
-    private static readonly Lazy<string> _extractedResourceDir = new(() => FileHelpers.ExtractEmbeddedResources(typeof(ExpoResourceBuilderExtensions).Assembly, [EmbeddedDockerfileName, EmbeddedEntrypointName]));
-
+    private static readonly Lazy<string> _extractedResourceDir = new(() => FileHelpers.ExtractEmbeddedResources(typeof(ExpoResourceBuilderExtensions).Assembly, new[] { EmbeddedDockerfileName, EmbeddedEntrypointName }));
     /// <summary>
-    /// 
+    /// Adds an Expo container resource to the distributed application. The container image is built
+    /// from the Dockerfile packaged with this library, while the specified <paramref name="buildContext"/>
+    /// is used as the Docker build context so the Dockerfile can COPY consumer source files. The
+    /// <paramref name="urlFactory"/> is used to lazily provide the public URL value for the EXPO
+    /// environment variables.
     /// </summary>
-    /// <param name="builder"></param>
-    /// <param name="name"></param>
-    /// <param name="url">Public URL used to configure the EXPO public API and proxy URLs.</param>
-    /// <param name="buildContext">Path to the build context (directory) for Docker builds (required). The consumer's folder will be used as the build context and the packaged Dockerfile will be passed as the override dockerfile path.</param>
-    /// <param name="port"></param>
-    /// <param name="targetPort"></param>
-    /// <returns></returns>
+    /// <param name="builder">The distributed application builder.</param>
+    /// <param name="name">Logical name for the Expo resource.</param>
+    /// <param name="urlFactory">Factory that produces the public URL used to configure the EXPO public API and proxy URLs. Evaluated lazily.</param>
+    /// <param name="buildContext">Path to the Docker build context (usually the consumer's project folder). Required.</param>
+    /// <param name="port">Port exposed by the container (default 8082).</param>
+    /// <param name="targetPort">Target port mapped by the orchestrator (default 8082).</param>
+    /// <returns>An <see cref="IResourceBuilder{ContainerResource}"/> for further configuration.</returns>
     public static IResourceBuilder<ContainerResource> AddExpo(
         this IDistributedApplicationBuilder builder,
         string name,
-        string url,
+        Func<string> urlFactory,
         string buildContext,
         int port = 8082,
         int targetPort = 8082)
@@ -82,22 +85,45 @@ public static class ExpoResourceBuilderExtensions
             .AddDockerfile(name, contextDir, dockerfilePathArg)
             .WithBuildArg("EXPO_PORT", port)
             .WithEnvironment(nameof(EXPO_DEV), EXPO_DEV)
-            .WithEnvironment("EXPO_PUBLIC_API_URL", () => url)
-            .WithEnvironment("EXPO_PACKAGER_PROXY_URL", () => url)
+            .WithEnvironment("EXPO_PUBLIC_API_URL", urlFactory)
+            .WithEnvironment("EXPO_PACKAGER_PROXY_URL", urlFactory)
             .WithHttpEndpoint(port: port, targetPort: targetPort);
 
         return rb;
     }
 
     /// <summary>
-    /// 
+    /// Convenience overload that accepts a string URL (evaluated immediately). Prefer the Func overload
+    /// when the URL is produced asynchronously or later (for example, from an ngrok resource).
     /// </summary>
-    /// <param name="builder"></param>
-    /// <param name="publicUrlTask"></param>
-    /// <param name="qrFilePath"></param>
-    /// <param name="infoLogger"></param>
-    /// <param name="errorLogger"></param>
-    /// <returns></returns>
+    /// <param name="builder">The distributed application builder.</param>
+    /// <param name="name">Logical name for the Expo resource.</param>
+    /// <param name="url">The public URL used to configure the EXPO public API and proxy URLs. This value is captured at the time of the call.</param>
+    /// <param name="buildContext">Path to the Docker build context (usually the consumer's project folder). Required.</param>
+    /// <param name="port">Port exposed by the container (default 8082).</param>
+    /// <param name="targetPort">Target port mapped by the orchestrator (default 8082).</param>
+    /// <returns>An <see cref="IResourceBuilder{ContainerResource}"/> for further configuration.</returns>
+    public static IResourceBuilder<ContainerResource> AddExpo(
+        this IDistributedApplicationBuilder builder,
+        string name,
+        string url,
+        string buildContext,
+        int port = 8082,
+        int targetPort = 8082)
+        => AddExpo(builder, name, () => url, buildContext, port, targetPort);
+
+    /// <summary>
+    /// Registers a command on the resource that will generate a QR code for the Expo app's
+    /// public URL and optionally open it in the default browser. The command is named
+    /// <c>generate-and-open</c> and is intended to be displayed in tooling that exposes
+    /// resource actions.
+    /// </summary>
+    /// <param name="builder">The resource builder to attach the command to.</param>
+    /// <param name="publicUrlTask">An optional task that will yield the published public URL (for example from an ngrok resource). The command waits for this task when executing.</param>
+    /// <param name="qrFilePath">Optional file path where the generated QR image will be written. If null the command will fail with a helpful message.</param>
+    /// <param name="infoLogger">Optional logger for informational messages produced by the command. Defaults to <see cref="Console.WriteLine(string)"/>.</param>
+    /// <param name="errorLogger">Optional logger for error messages produced by the command. Defaults to <see cref="Console.WriteLine(string)"/>.</param>
+    /// <returns>The same <see cref="IResourceBuilder{ContainerResource}"/> instance to allow fluent chaining.</returns>
     public static IResourceBuilder<ContainerResource> WithQrCommand(
         this IResourceBuilder<ContainerResource> builder,
         Task<Uri?>? publicUrlTask = null,
