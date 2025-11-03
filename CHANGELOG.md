@@ -1,3 +1,10 @@
+## [1.0.3](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/compare/v1.0.2...v1.0.3) (2025-11-03)
+
+
+### Bug Fixes
+
+* publishing multiple packages; adding nuget readme ([0ff192b](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/commit/0ff192bb5791b29040585b660b92db96d58c6316))
+
 ## [1.0.2](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/compare/v1.0.1...v1.0.2) (2025-11-03)
 
 
