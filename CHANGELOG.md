@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/compare/v1.1.0...v1.1.1) (2025-11-09)
+
+
+### Bug Fixes
+
+* otel integration missing embedded file ([798a18e](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/commit/798a18eb089f5166fa0083f5c10fc702b6c9f3b9))
+
 # [1.1.0](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/compare/v1.0.3...v1.1.0) (2025-11-09)
 
 
