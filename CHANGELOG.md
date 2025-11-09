@@ -1,3 +1,10 @@
+## [1.1.2](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/compare/v1.1.1...v1.1.2) (2025-11-09)
+
+
+### Bug Fixes
+
+* adding logging ([f4506ef](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/commit/f4506ef7b5ce1ded190f8f301982ebccbdfa09cd))
+
 ## [1.1.1](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/compare/v1.1.0...v1.1.1) (2025-11-09)
 
 
