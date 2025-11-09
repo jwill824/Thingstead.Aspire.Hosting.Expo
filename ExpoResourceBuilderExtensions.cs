@@ -100,15 +100,23 @@ public static class ExpoResourceBuilderExtensions
             log($"[expo] failed to merge entrypoint into build context; using original build context '{buildContext}'");
         }
 
-        var rb = builder
-            .AddDockerfile(name, contextDir, dockerfilePathArg)
-            .WithBuildArg("EXPO_PORT", port)
-            .WithEnvironment(nameof(EXPO_DEV), EXPO_DEV)
-            .WithEnvironment("EXPO_PUBLIC_API_URL", urlFactory)
-            .WithEnvironment("EXPO_PACKAGER_PROXY_URL", urlFactory)
-            .WithHttpEndpoint(port, targetPort);
+        try
+        {
+            var rb = builder
+                .AddDockerfile(name, contextDir, dockerfilePathArg)
+                .WithBuildArg("EXPO_PORT", port)
+                .WithEnvironment(nameof(EXPO_DEV), EXPO_DEV)
+                .WithEnvironment("EXPO_PUBLIC_API_URL", urlFactory)
+                .WithEnvironment("EXPO_PACKAGER_PROXY_URL", urlFactory)
+                .WithHttpEndpoint(port, targetPort);
 
-        return rb;
+            return rb;
+        }
+        catch (Exception ex)
+        {
+            log($"[expo] error adding Expo resource '{name}': {ex.Message}");
+            throw;
+        }
     }
 
     /// <summary>
