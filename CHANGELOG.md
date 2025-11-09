@@ -1,3 +1,10 @@
+## [1.1.4](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/compare/v1.1.3...v1.1.4) (2025-11-09)
+
+
+### Bug Fixes
+
+* adding exception handling ([3e4923c](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/commit/3e4923ca0ca8a97396cfbb97baad7d9ef1da9ef5))
+
 ## [1.1.3](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/compare/v1.1.2...v1.1.3) (2025-11-09)
 
 
