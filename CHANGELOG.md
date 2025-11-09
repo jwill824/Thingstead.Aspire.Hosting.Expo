@@ -1,3 +1,10 @@
+## [1.1.5](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/compare/v1.1.4...v1.1.5) (2025-11-09)
+
+
+### Bug Fixes
+
+* Dockerfile and adding more logging ([e68de9d](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/commit/e68de9d53b5b7301619f90ed6a99b5eb9353f3b9))
+
 ## [1.1.4](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/compare/v1.1.3...v1.1.4) (2025-11-09)
 
 
