@@ -102,6 +102,7 @@ public static class ExpoResourceBuilderExtensions
 
         try
         {
+            log($"[expo] adding Expo resource '{name}' with build context '{contextDir}' and dockerfile '{dockerfilePathArg}'");
             var rb = builder
                 .AddDockerfile(name, contextDir, dockerfilePathArg)
                 .WithBuildArg("EXPO_PORT", port)

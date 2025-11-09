@@ -15,8 +15,6 @@ RUN if [ -f package-lock.json ]; then npm ci --no-audit --no-fund; else npm inst
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-COPY otel-bootstrap.js /app/otel-bootstrap.js
-
 EXPOSE ${EXPO_PORT}
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
