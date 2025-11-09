@@ -20,7 +20,7 @@ public static class ExpoResourceBuilderExtensions
     private const string EmbeddedBootstrapName = "otel-bootstrap.js";
 
     // Lazy extraction to temporary directory so we only write once per process
-    private static readonly Lazy<string> _extractedResourceDir = new(() => FileHelpers.ExtractEmbeddedResources(typeof(ExpoResourceBuilderExtensions).Assembly, new[] { EmbeddedDockerfileName, EmbeddedEntrypointName, EmbeddedBootstrapName }));
+    private static readonly Lazy<string> _extractedResourceDir = new(() => FileHelpers.ExtractEmbeddedResources(typeof(ExpoResourceBuilderExtensions).Assembly, [EmbeddedDockerfileName, EmbeddedEntrypointName, EmbeddedBootstrapName]));
 
     /// <summary>
     /// Adds an Expo container resource to the distributed application. The container image is built
@@ -35,6 +35,7 @@ public static class ExpoResourceBuilderExtensions
     /// <param name="buildContext">Path to the Docker build context (usually the consumer's project folder). Required.</param>
     /// <param name="port">Port exposed by the container (default 8082).</param>
     /// <param name="targetPort">Target port mapped by the orchestrator (default 8082).</param>
+    /// <param name="logger"></param>
     /// <returns>An <see cref="IResourceBuilder{ContainerResource}"/> for further configuration.</returns>
     public static IResourceBuilder<ContainerResource> AddExpo(
         this IDistributedApplicationBuilder builder,
@@ -42,9 +43,11 @@ public static class ExpoResourceBuilderExtensions
         Func<string> urlFactory,
         string buildContext,
         int port = 8082,
-        int targetPort = 8082)
+        int targetPort = 8082,
+        Action<string>? logger = null)
     {
         ArgumentException.ThrowIfNullOrEmpty(buildContext);
+        Action<string> log = logger ?? Console.WriteLine;
 
         // Ensure embedded files are extracted and then point the builder at the appropriate build context
         var resourceDir = _extractedResourceDir.Value;
@@ -57,13 +60,17 @@ public static class ExpoResourceBuilderExtensions
         try
         {
             var entrypointPathInContext = Path.Combine(buildContext, EmbeddedEntrypointName);
+            log($"Expo: Checking for entrypoint at '{entrypointPathInContext}'");
             if (!File.Exists(entrypointPathInContext))
             {
+                log($"Expo: Merging embedded entrypoint into build context for resource '{name}'");
                 var mergedTemp = Path.Combine(Path.GetTempPath(), "aspire-expo-merged", Guid.NewGuid().ToString());
                 Directory.CreateDirectory(mergedTemp);
+                log($"Expo: Created temporary merged build context at '{mergedTemp}'");
 
                 // Copy consumer buildContext into mergedTemp
                 new DirectoryInfo(buildContext).CopyTo(mergedTemp);
+                log($"Expo: Copied consumer build context from '{buildContext}' to '{mergedTemp}'");
 
                 // Copy embedded entrypoint into mergedTemp
                 var srcEntrypoint = Path.Combine(resourceDir, EmbeddedEntrypointName);
@@ -74,6 +81,7 @@ public static class ExpoResourceBuilderExtensions
                     // Ensure executable bit on Unix
                     new FileInfo(dstEntrypoint).TrySetExecutable();
                     contextDir = mergedTemp;
+                    log($"Expo: Copied embedded entrypoint to '{dstEntrypoint}'");
                 }
 
                 var srcBootstrap = Path.Combine(resourceDir, EmbeddedBootstrapName);
@@ -81,6 +89,7 @@ public static class ExpoResourceBuilderExtensions
                 if (File.Exists(srcBootstrap))
                 {
                     File.Copy(srcBootstrap, dstBootstrap, overwrite: true);
+                    log($"Expo: Copied embedded OpenTelemetry bootstrap to '{dstBootstrap}'");
                 }
             }
         }
@@ -88,6 +97,7 @@ public static class ExpoResourceBuilderExtensions
         {
             // On failure, fall back to original buildContext so the orchestrator can report a clear error
             contextDir = buildContext;
+            log($"Expo: Failed to merge entrypoint into build context; using original build context '{buildContext}'");
         }
 
         var rb = builder
@@ -96,7 +106,7 @@ public static class ExpoResourceBuilderExtensions
             .WithEnvironment(nameof(EXPO_DEV), EXPO_DEV)
             .WithEnvironment("EXPO_PUBLIC_API_URL", urlFactory)
             .WithEnvironment("EXPO_PACKAGER_PROXY_URL", urlFactory)
-            .WithHttpEndpoint(port: port, targetPort: targetPort);
+            .WithHttpEndpoint(port, targetPort);
 
         return rb;
     }
@@ -111,6 +121,7 @@ public static class ExpoResourceBuilderExtensions
     /// <param name="buildContext">Path to the Docker build context (usually the consumer's project folder). Required.</param>
     /// <param name="port">Port exposed by the container (default 8082).</param>
     /// <param name="targetPort">Target port mapped by the orchestrator (default 8082).</param>
+    /// <param name="logger"></param>
     /// <returns>An <see cref="IResourceBuilder{ContainerResource}"/> for further configuration.</returns>
     public static IResourceBuilder<ContainerResource> AddExpo(
         this IDistributedApplicationBuilder builder,
@@ -118,8 +129,9 @@ public static class ExpoResourceBuilderExtensions
         string url,
         string buildContext,
         int port = 8082,
-        int targetPort = 8082)
-        => AddExpo(builder, name, () => url, buildContext, port, targetPort);
+        int targetPort = 8082,
+        Action<string>? logger = null)
+        => AddExpo(builder, name, () => url, buildContext, port, targetPort, logger);
 
     /// <summary>
     /// Registers a command on the resource that will generate a QR code for the Expo app's
