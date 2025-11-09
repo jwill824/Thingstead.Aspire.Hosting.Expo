@@ -60,17 +60,17 @@ public static class ExpoResourceBuilderExtensions
         try
         {
             var entrypointPathInContext = Path.Combine(buildContext, EmbeddedEntrypointName);
-            log($"Expo: Checking for entrypoint at '{entrypointPathInContext}'");
+            log($"[expo] checking for entrypoint at '{entrypointPathInContext}'");
             if (!File.Exists(entrypointPathInContext))
             {
-                log($"Expo: Merging embedded entrypoint into build context for resource '{name}'");
+                log($"[expo] merging embedded entrypoint into build context for resource '{name}'");
                 var mergedTemp = Path.Combine(Path.GetTempPath(), "aspire-expo-merged", Guid.NewGuid().ToString());
                 Directory.CreateDirectory(mergedTemp);
-                log($"Expo: Created temporary merged build context at '{mergedTemp}'");
+                log($"[expo] created temporary merged build context at '{mergedTemp}'");
 
                 // Copy consumer buildContext into mergedTemp
                 new DirectoryInfo(buildContext).CopyTo(mergedTemp);
-                log($"Expo: Copied consumer build context from '{buildContext}' to '{mergedTemp}'");
+                log($"[expo] copied consumer build context from '{buildContext}' to '{mergedTemp}'");
 
                 // Copy embedded entrypoint into mergedTemp
                 var srcEntrypoint = Path.Combine(resourceDir, EmbeddedEntrypointName);
@@ -81,7 +81,7 @@ public static class ExpoResourceBuilderExtensions
                     // Ensure executable bit on Unix
                     new FileInfo(dstEntrypoint).TrySetExecutable();
                     contextDir = mergedTemp;
-                    log($"Expo: Copied embedded entrypoint to '{dstEntrypoint}'");
+                    log($"[expo] copied embedded entrypoint to '{dstEntrypoint}'");
                 }
 
                 var srcBootstrap = Path.Combine(resourceDir, EmbeddedBootstrapName);
@@ -89,7 +89,7 @@ public static class ExpoResourceBuilderExtensions
                 if (File.Exists(srcBootstrap))
                 {
                     File.Copy(srcBootstrap, dstBootstrap, overwrite: true);
-                    log($"Expo: Copied embedded OpenTelemetry bootstrap to '{dstBootstrap}'");
+                    log($"[expo] copied embedded OpenTelemetry bootstrap to '{dstBootstrap}'");
                 }
             }
         }
@@ -97,7 +97,7 @@ public static class ExpoResourceBuilderExtensions
         {
             // On failure, fall back to original buildContext so the orchestrator can report a clear error
             contextDir = buildContext;
-            log($"Expo: Failed to merge entrypoint into build context; using original build context '{buildContext}'");
+            log($"[expo] failed to merge entrypoint into build context; using original build context '{buildContext}'");
         }
 
         var rb = builder
