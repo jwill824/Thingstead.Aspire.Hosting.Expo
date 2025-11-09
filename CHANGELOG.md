@@ -1,3 +1,10 @@
+## [1.1.3](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/compare/v1.1.2...v1.1.3) (2025-11-09)
+
+
+### Bug Fixes
+
+* updating logging; adding embedded resource for real this time ([f11a540](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/commit/f11a54091d033143370ca0e63634436dd83c3e44))
+
 ## [1.1.2](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/compare/v1.1.1...v1.1.2) (2025-11-09)
 
 
