@@ -1,3 +1,10 @@
+## [1.1.6](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/compare/v1.1.5...v1.1.6) (2025-11-09)
+
+
+### Bug Fixes
+
+* adding an explicit method; fixing bootstrap script ([f827cbf](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/commit/f827cbf2056c26c3d59bee272d83cdd68f8c1a36))
+
 ## [1.1.5](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/compare/v1.1.4...v1.1.5) (2025-11-09)
 
 
