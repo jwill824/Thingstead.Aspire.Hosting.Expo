@@ -121,6 +121,27 @@ public static class ExpoResourceBuilderExtensions
     }
 
     /// <summary>
+    /// Configures OpenTelemetry on the Expo container resource builder.
+    /// </summary>
+    /// <param name="builder"></param>
+    /// <param name="serviceName"></param>
+    /// <param name="endpoint"></param>
+    /// <returns></returns>
+    public static IResourceBuilder<ContainerResource> WithOpenTelemetry(
+        this IResourceBuilder<ContainerResource> builder,
+        string serviceName, string endpoint)
+    {
+        return builder
+            .WithEnvironment("OTEL_SERVICE_NAME", serviceName)
+            .WithEnvironment("OTEL_TRACES_EXPORTER", "otlp")
+            .WithEnvironment("OTEL_METRICS_EXPORTER", "otlp")
+            .WithEnvironment("OTEL_EXPORTER_OTLP_ENDPOINT", endpoint)
+            .WithEnvironment("OTEL_PROPAGATORS", "tracecontext,baggage")
+            .WithEnvironment("OTEL_RESOURCE_ATTRIBUTES", $"service.name={serviceName}")
+            .WithEnvironment("NODE_OPTIONS", "--require /otel-bootstrap.js");
+    }
+
+    /// <summary>
     /// Convenience overload that accepts a string URL (evaluated immediately). Prefer the Func overload
     /// when the URL is produced asynchronously or later (for example, from an ngrok resource).
     /// </summary>
