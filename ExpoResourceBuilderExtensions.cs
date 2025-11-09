@@ -17,9 +17,11 @@ public static class ExpoResourceBuilderExtensions
     // Names of the embedded resources (relative to the assembly manifest)
     private const string EmbeddedDockerfileName = "Dockerfile";
     private const string EmbeddedEntrypointName = "docker-entrypoint.sh";
+    private const string EmbeddedBootstrapName = "otel-bootstrap.js";
 
     // Lazy extraction to temporary directory so we only write once per process
-    private static readonly Lazy<string> _extractedResourceDir = new(() => FileHelpers.ExtractEmbeddedResources(typeof(ExpoResourceBuilderExtensions).Assembly, new[] { EmbeddedDockerfileName, EmbeddedEntrypointName }));
+    private static readonly Lazy<string> _extractedResourceDir = new(() => FileHelpers.ExtractEmbeddedResources(typeof(ExpoResourceBuilderExtensions).Assembly, new[] { EmbeddedDockerfileName, EmbeddedEntrypointName, EmbeddedBootstrapName }));
+
     /// <summary>
     /// Adds an Expo container resource to the distributed application. The container image is built
     /// from the Dockerfile packaged with this library, while the specified <paramref name="buildContext"/>
@@ -72,6 +74,13 @@ public static class ExpoResourceBuilderExtensions
                     // Ensure executable bit on Unix
                     new FileInfo(dstEntrypoint).TrySetExecutable();
                     contextDir = mergedTemp;
+                }
+
+                var srcBootstrap = Path.Combine(resourceDir, EmbeddedBootstrapName);
+                var dstBootstrap = Path.Combine(mergedTemp, EmbeddedBootstrapName);
+                if (File.Exists(srcBootstrap))
+                {
+                    File.Copy(srcBootstrap, dstBootstrap, overwrite: true);
                 }
             }
         }
