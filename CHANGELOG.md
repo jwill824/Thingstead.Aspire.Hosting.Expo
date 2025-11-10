@@ -1,3 +1,10 @@
+## [1.1.10](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/compare/v1.1.9...v1.1.10) (2025-11-10)
+
+
+### Bug Fixes
+
+* otel resource ctor ([6c10048](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/commit/6c1004841e95fbdce25213f83c49d42a12c7883f))
+
 ## [1.1.9](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/compare/v1.1.8...v1.1.9) (2025-11-10)
 
 
