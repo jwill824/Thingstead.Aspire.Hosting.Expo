@@ -38,25 +38,50 @@ async function createExporters() {
   const endpoint = process.env.OTEL_EXPORTER_OTLP_ENDPOINT;
   let traceExporter = null;
   let metricExporter = null;
-
   if (endpoint) {
-    try {
-      // dynamic imports so missing packages don't crash consumers who don't install them
-      const traceMod = await import('@opentelemetry/exporter-trace-otlp-http');
-      const metricsMod = await import('@opentelemetry/exporter-metrics-otlp-http');
+    // Determine preferred protocol: explicit env var takes precedence
+    const preferredProtocol = (process.env.OTEL_EXPORTER_OTLP_TRACES_PROTOCOL || process.env.OTEL_EXPORTER_OTLP_PROTOCOL || '').toLowerCase();
+    const useGrpc = preferredProtocol === 'grpc' || preferredProtocol === 'grpc-web' || endpoint.startsWith('grpc://') || endpoint.endsWith(':4317');
 
-      const tracesUrl = endpoint.endsWith('/') ? `${endpoint}v1/traces` : `${endpoint}/v1/traces`;
-      const metricsUrl = endpoint.endsWith('/') ? `${endpoint}v1/metrics` : `${endpoint}/v1/metrics`;
+    // Try gRPC exporters first when indicated, otherwise try HTTP exporters
+    if (useGrpc) {
+      try {
+        const traceMod = await import('@opentelemetry/exporter-trace-otlp-grpc');
+        const metricsMod = await import('@opentelemetry/exporter-metrics-otlp-grpc');
+        const OTLPTraceExporter = traceMod.OTLPTraceExporter ?? traceMod.default ?? traceMod;
+        const OTLPMetricExporter = metricsMod.OTLPMetricExporter ?? metricsMod.default ?? metricsMod;
 
-      const OTLPTraceExporter = traceMod.OTLPTraceExporter ?? traceMod.default ?? traceMod;
-      const OTLPMetricExporter = metricsMod.OTLPMetricExporter ?? metricsMod.default ?? metricsMod;
+        // For gRPC exporters the endpoint is usually host:port (without scheme)
+        // Strip scheme if present
+        const grpcEndpoint = endpoint.replace(/^https?:\/\//, '').replace(/^grpc:\/\//, '');
+        traceExporter = new OTLPTraceExporter({ url: grpcEndpoint });
+        metricExporter = new OTLPMetricExporter({ url: grpcEndpoint });
+        console.info('OpenTelemetry: configured OTLP gRPC exporters for', grpcEndpoint);
+      } catch (err) {
+        console.warn('OpenTelemetry: failed to load OTLP gRPC exporters, falling back to HTTP exporters.', err?.message ?? err);
+      }
+    }
 
-      traceExporter = new OTLPTraceExporter({ url: tracesUrl });
-      metricExporter = new OTLPMetricExporter({ url: metricsUrl });
+    // If gRPC wasn't selected or failed, try HTTP exporters
+    if (!traceExporter || !metricExporter) {
+      try {
+        const traceMod = await import('@opentelemetry/exporter-trace-otlp-http');
+        const metricsMod = await import('@opentelemetry/exporter-metrics-otlp-http');
 
-      console.info('OpenTelemetry: configured OTLP exporters for', endpoint);
-    } catch (err) {
-      console.warn('OpenTelemetry: failed to load OTLP exporters, falling back to Console exporters.', err?.message ?? err);
+        const tracesUrl = endpoint.endsWith('/') ? `${endpoint}v1/traces` : `${endpoint}/v1/traces`;
+        const metricsUrl = endpoint.endsWith('/') ? `${endpoint}v1/metrics` : `${endpoint}/v1/metrics`;
+
+        const OTLPTraceExporter = traceMod.OTLPTraceExporter ?? traceMod.default ?? traceMod;
+        const OTLPMetricExporter = metricsMod.OTLPMetricExporter ?? metricsMod.default ?? metricsMod;
+
+        // Only set if not already set by gRPC attempt
+        if (!traceExporter) traceExporter = new OTLPTraceExporter({ url: tracesUrl });
+        if (!metricExporter) metricExporter = new OTLPMetricExporter({ url: metricsUrl });
+
+        console.info('OpenTelemetry: configured OTLP HTTP exporters for', endpoint);
+      } catch (err) {
+        console.warn('OpenTelemetry: failed to load OTLP HTTP exporters, falling back to Console exporters.', err?.message ?? err);
+      }
     }
   } else {
     console.info('OpenTelemetry: OTEL_EXPORTER_OTLP_ENDPOINT not set; using Console exporters');
