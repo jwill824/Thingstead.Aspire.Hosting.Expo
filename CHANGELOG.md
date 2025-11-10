@@ -1,3 +1,10 @@
+## [1.1.12](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/compare/v1.1.11...v1.1.12) (2025-11-10)
+
+
+### Bug Fixes
+
+* add grpc ([cb9b5cb](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/commit/cb9b5cb835e063f6bc24f945b5934f03ed57903c))
+
 ## [1.1.11](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/compare/v1.1.10...v1.1.11) (2025-11-10)
 
 
