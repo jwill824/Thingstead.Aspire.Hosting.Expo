@@ -8,8 +8,12 @@ import { NodeSDK } from '@opentelemetry/sdk-node';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
 import { PeriodicExportingMetricReader, ConsoleMetricExporter } from '@opentelemetry/sdk-metrics';
 import { ConsoleSpanExporter } from '@opentelemetry/sdk-trace-node';
-import { Resource } from '@opentelemetry/resources';
-import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
+// @opentelemetry/resources and semantic-conventions are CommonJS packages in some
+// releases; import as default and destructure to remain compatible with both CJS and ESM
+import resourcesPkg from '@opentelemetry/resources';
+import semanticPkg from '@opentelemetry/semantic-conventions';
+const { Resource } = resourcesPkg;
+const { SemanticResourceAttributes } = semanticPkg;
 
 // Helpers to create exporters. We attempt to load OTLP exporters dynamically so the
 // module can be imported even when the OTLP packages are not installed in dev.
