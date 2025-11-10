@@ -1,3 +1,10 @@
+## [1.1.11](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/compare/v1.1.10...v1.1.11) (2025-11-10)
+
+
+### Bug Fixes
+
+* resource ctor again ([930be56](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/commit/930be5682a1c7b8433aa574ab930ad62a5ad65b7))
+
 ## [1.1.10](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/compare/v1.1.9...v1.1.10) (2025-11-10)
 
 
