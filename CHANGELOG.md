@@ -1,3 +1,10 @@
+## [1.1.13](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/compare/v1.1.12...v1.1.13) (2025-11-10)
+
+
+### Bug Fixes
+
+* add grpc to env vars ([88b18ff](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/commit/88b18ff9dc78b25f0fbe6cbb55baf023353b5b13))
+
 ## [1.1.12](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/compare/v1.1.11...v1.1.12) (2025-11-10)
 
 
