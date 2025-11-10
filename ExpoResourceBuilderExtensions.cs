@@ -133,8 +133,8 @@ public static class ExpoResourceBuilderExtensions
     {
         return builder
             .WithEnvironment("OTEL_SERVICE_NAME", serviceName)
-            .WithEnvironment("OTEL_TRACES_EXPORTER", "otlp")
-            .WithEnvironment("OTEL_METRICS_EXPORTER", "otlp")
+            .WithEnvironment("OTEL_TRACES_EXPORTER", "grpc")
+            .WithEnvironment("OTEL_METRICS_EXPORTER", "grpc")
             .WithEnvironment("OTEL_EXPORTER_OTLP_ENDPOINT", endpoint)
             .WithEnvironment("OTEL_PROPAGATORS", "tracecontext,baggage")
             .WithEnvironment("OTEL_RESOURCE_ATTRIBUTES", $"service.name={serviceName}")
