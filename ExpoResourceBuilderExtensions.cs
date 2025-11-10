@@ -138,7 +138,7 @@ public static class ExpoResourceBuilderExtensions
             .WithEnvironment("OTEL_EXPORTER_OTLP_ENDPOINT", endpoint)
             .WithEnvironment("OTEL_PROPAGATORS", "tracecontext,baggage")
             .WithEnvironment("OTEL_RESOURCE_ATTRIBUTES", $"service.name={serviceName}")
-            .WithEnvironment("NODE_OPTIONS", "--require /otel-bootstrap.js");
+            .WithEnvironment("NODE_OPTIONS", "--require /app/otel-bootstrap.js");
     }
 
     /// <summary>
