@@ -100,7 +100,13 @@ function createResource() {
     };
 
     const resource = createResource();
-    if (resource) sdkOptions.resource = resource;
+    if (resource && ResourceCtor) {
+      sdkOptions.resource = resource;
+      console.info('OpenTelemetry: using Resource instance for service.name');
+    } else if (resource && !ResourceCtor) {
+      // We resolved attributes but couldn't construct a Resource instance — log and skip
+      console.warn('OpenTelemetry: Resource constructor unavailable; skipping setting SDK resource.');
+    }
 
     const sdk = new NodeSDK(sdkOptions);
 
