@@ -1,3 +1,10 @@
+## [1.1.9](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/compare/v1.1.8...v1.1.9) (2025-11-10)
+
+
+### Bug Fixes
+
+* updating instrumentation.mjs imports ([fc3a48f](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/commit/fc3a48ff39febbea1493ff6595f067656ee728d3))
+
 ## [1.1.8](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/compare/v1.1.7...v1.1.8) (2025-11-10)
 
 
