@@ -17,10 +17,10 @@ public static class ExpoResourceBuilderExtensions
     // Names of the embedded resources (relative to the assembly manifest)
     private const string EmbeddedDockerfileName = "Dockerfile";
     private const string EmbeddedEntrypointName = "docker-entrypoint.sh";
-    private const string EmbeddedBootstrapName = "otel-bootstrap.js";
+    private const string EmbeddedInstrumentationName = "instrumentation.mjs";
 
     // Lazy extraction to temporary directory so we only write once per process
-    private static readonly Lazy<string> _extractedResourceDir = new(() => FileHelpers.ExtractEmbeddedResources(typeof(ExpoResourceBuilderExtensions).Assembly, [EmbeddedDockerfileName, EmbeddedEntrypointName, EmbeddedBootstrapName]));
+    private static readonly Lazy<string> _extractedResourceDir = new(() => FileHelpers.ExtractEmbeddedResources(typeof(ExpoResourceBuilderExtensions).Assembly, [EmbeddedDockerfileName, EmbeddedEntrypointName, EmbeddedInstrumentationName]));
 
     /// <summary>
     /// Adds an Expo container resource to the distributed application. The container image is built
@@ -84,12 +84,12 @@ public static class ExpoResourceBuilderExtensions
                     log($"[expo] copied embedded entrypoint to '{dstEntrypoint}'");
                 }
 
-                var srcBootstrap = Path.Combine(resourceDir, EmbeddedBootstrapName);
-                var dstBootstrap = Path.Combine(mergedTemp, EmbeddedBootstrapName);
-                if (File.Exists(srcBootstrap))
+                var srcInstrumentation = Path.Combine(resourceDir, EmbeddedInstrumentationName);
+                var dstInstrumentation = Path.Combine(mergedTemp, EmbeddedInstrumentationName);
+                if (File.Exists(srcInstrumentation))
                 {
-                    File.Copy(srcBootstrap, dstBootstrap, overwrite: true);
-                    log($"[expo] copied embedded OpenTelemetry bootstrap to '{dstBootstrap}'");
+                    File.Copy(srcInstrumentation, dstInstrumentation, overwrite: true);
+                    log($"[expo] copied embedded OpenTelemetry instrumentation to '{dstInstrumentation}'");
                 }
             }
         }
@@ -138,7 +138,7 @@ public static class ExpoResourceBuilderExtensions
             .WithEnvironment("OTEL_EXPORTER_OTLP_ENDPOINT", endpoint)
             .WithEnvironment("OTEL_PROPAGATORS", "tracecontext,baggage")
             .WithEnvironment("OTEL_RESOURCE_ATTRIBUTES", $"service.name={serviceName}")
-            .WithEnvironment("NODE_OPTIONS", "--require /app/otel-bootstrap.js");
+            .WithEnvironment("NODE_OPTIONS", "--import /app/instrumentation.mjs");
     }
 
     /// <summary>

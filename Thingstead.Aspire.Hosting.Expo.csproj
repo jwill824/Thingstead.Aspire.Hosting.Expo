@@ -36,10 +36,10 @@
     <None Include="README.md" Pack="true" PackagePath="/"/>
     <None Include="Dockerfile" Pack="true" PackagePath="contentFiles/any/any/" />
     <None Include="docker-entrypoint.sh" Pack="true" PackagePath="contentFiles/any/any/" />
-    <None Include="otel-bootstrap.js" Pack="true" PackagePath="contentFiles/any/any/" />
+    <None Include="instrumentation.mjs" Pack="true" PackagePath="contentFiles/any/any/" />
     <EmbeddedResource Include="Dockerfile" />
     <EmbeddedResource Include="docker-entrypoint.sh" />
-    <EmbeddedResource Include="otel-bootstrap.js" />
+    <EmbeddedResource Include="instrumentation.mjs" />
   </ItemGroup>
 
 </Project>
