@@ -1,3 +1,10 @@
+## [1.1.8](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/compare/v1.1.7...v1.1.8) (2025-11-10)
+
+
+### Bug Fixes
+
+* refactoring our otel integration ([a135b4d](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/commit/a135b4daa4e0d413c01dcd594295ae108842851d))
+
 ## [1.1.7](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/compare/v1.1.6...v1.1.7) (2025-11-10)
 
 
