@@ -8,12 +8,29 @@ import { NodeSDK } from '@opentelemetry/sdk-node';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
 import { PeriodicExportingMetricReader, ConsoleMetricExporter } from '@opentelemetry/sdk-metrics';
 import { ConsoleSpanExporter } from '@opentelemetry/sdk-trace-node';
-// @opentelemetry/resources and semantic-conventions are CommonJS packages in some
-// releases; import as default and destructure to remain compatible with both CJS and ESM
+// @opentelemetry/resources and semantic-conventions can export in different shapes
+// depending on the package release (CommonJS vs ESM). Import the package as a
+// default and resolve the actual constructors/objects at runtime to remain robust.
 import resourcesPkg from '@opentelemetry/resources';
 import semanticPkg from '@opentelemetry/semantic-conventions';
-const { Resource } = resourcesPkg;
-const { SemanticResourceAttributes } = semanticPkg;
+
+function resolveSemanticAttrs(pkg) {
+  if (!pkg) return {};
+  return pkg.SemanticResourceAttributes ?? pkg.default?.SemanticResourceAttributes ?? pkg.default ?? pkg;
+}
+
+const SemanticResourceAttributes = resolveSemanticAttrs(semanticPkg);
+
+function resolveResourceCtor(pkg) {
+  if (!pkg) return null;
+  const candidates = [pkg, pkg.default, pkg.Resource, pkg.default?.Resource];
+  for (const c of candidates) {
+    if (typeof c === 'function') return c;
+  }
+  return null;
+}
+
+const ResourceCtor = resolveResourceCtor(resourcesPkg);
 
 // Helpers to create exporters. We attempt to load OTLP exporters dynamically so the
 // module can be imported even when the OTLP packages are not installed in dev.
@@ -56,7 +73,16 @@ async function createExporters() {
 function createResource() {
   const serviceName = process.env.OTEL_SERVICE_NAME;
   if (serviceName) {
-    return new Resource({ [SemanticResourceAttributes.SERVICE_NAME]: serviceName });
+    if (ResourceCtor) {
+      return new ResourceCtor({ [SemanticResourceAttributes.SERVICE_NAME]: serviceName });
+    }
+    // If we couldn't resolve the Resource constructor, return an object-shaped resource
+    // The SDK will accept a Resource instance; if not available, fall back to undefined
+    try {
+      return { attributes: { [SemanticResourceAttributes.SERVICE_NAME]: serviceName } };
+    } catch {
+      return undefined;
+    }
   }
   return undefined;
 }
