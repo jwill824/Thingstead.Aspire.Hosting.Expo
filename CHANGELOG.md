@@ -1,3 +1,10 @@
+## [1.1.7](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/compare/v1.1.6...v1.1.7) (2025-11-10)
+
+
+### Bug Fixes
+
+* filepath ([3cad464](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/commit/3cad4644df1737c65b0193b692fc5bc86809cc41))
+
 ## [1.1.6](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/compare/v1.1.5...v1.1.6) (2025-11-09)
 
 
