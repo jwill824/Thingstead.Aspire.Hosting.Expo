@@ -3,7 +3,7 @@ namespace Aspire.Hosting;
 /// <summary>
 /// Maps to the "Expo" section in appsettings.
 /// </summary>
-public class ExpoOptions
+public record ExpoOptions
 {
     /// <summary>
     /// Resource name used by the AppHost for the Expo frontend.
