@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
@@ -27,19 +27,17 @@
 
   <ItemGroup>
     <PackageReference Include="QRCoder" Version="1.4.3" />
-    <PackageReference Include="Aspire.Hosting" Version="9.5.2" />
-    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.5.2" />
+    <PackageReference Include="Aspire.Hosting" Version="13.0.0" />
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="13.0.0" />
   </ItemGroup>
 
   <!-- Include Dockerfile and entrypoint in the NuGet package and embed them as resources -->
   <ItemGroup>
-    <None Include="README.md" Pack="true" PackagePath="/"/>
-    <None Include="Dockerfile" Pack="true" PackagePath="contentFiles/any/any/" />
-    <None Include="docker-entrypoint.sh" Pack="true" PackagePath="contentFiles/any/any/" />
-    <None Include="instrumentation.mjs" Pack="true" PackagePath="contentFiles/any/any/" />
-    <EmbeddedResource Include="Dockerfile" />
-    <EmbeddedResource Include="docker-entrypoint.sh" />
-    <EmbeddedResource Include="instrumentation.mjs" />
+    <None Include="../README.md" Pack="true" PackagePath="/"/>
+    <None Include="../Dockerfile" Pack="true" PackagePath="contentFiles/any/any/" />
+    <None Include="../docker-entrypoint.sh" Pack="true" PackagePath="contentFiles/any/any/" />
+    <EmbeddedResource Include="../Dockerfile" />
+    <EmbeddedResource Include="../docker-entrypoint.sh" />
   </ItemGroup>
 
 </Project>
