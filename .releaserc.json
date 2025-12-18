@@ -5,7 +5,7 @@
     "@semantic-release/release-notes-generator",
     ["@semantic-release/changelog", { "changelogFile": "CHANGELOG.md" }],
     ["@semantic-release/exec", {
-      "prepareCmd": "\"sh\" -c \"rm -f ./artifacts/*.nupkg && dotnet pack Thingstead.Aspire.Hosting.Expo.csproj -c Release -p:PackageVersion=${nextRelease.version} -o ./artifacts\"",
+      "prepareCmd": "\"sh\" -c \"rm -f ./artifacts/*.nupkg && dotnet pack Thingstead.Aspire.Hosting.Expo/Thingstead.Aspire.Hosting.Expo.csproj -c Release -p:PackageVersion=${nextRelease.version} -o ./artifacts\"",
       "publishCmd": "\"sh\" -c \"dotnet nuget push ./artifacts/*.nupkg -s https://nuget.pkg.github.com/$GITHUB_REPOSITORY_OWNER/index.json -k $GITHUB_TOKEN --skip-duplicate\""
     }],
     ["@semantic-release/git", {
