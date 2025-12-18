@@ -1,3 +1,10 @@
+## [2.0.1](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/compare/v2.0.0...v2.0.1) (2025-12-18)
+
+
+### Bug Fixes
+
+* changing ExpoOptions to record ([ee70f4d](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/commit/ee70f4dfae94cd257bd50ff66f5f29c02b11426a))
+
 # [2.0.0](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/compare/v1.1.14...v2.0.0) (2025-12-18)
 
 
