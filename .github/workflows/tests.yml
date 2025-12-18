@@ -1,0 +1,36 @@
+name: Unit Tests
+
+on:
+  push:
+    branches-ignore:
+      - main
+  workflow_dispatch:
+
+jobs:
+  dotnet-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        dotnet-version: [ '10.0.x' ]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-packages-${{ runner.os }}-v1-${{ matrix.dotnet-version }}-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            nuget-packages-${{ runner.os }}-v1-
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ matrix.dotnet-version }}
+
+      - name: Restore .NET solution
+        run: dotnet restore Thingstead.Aspire.Hosting.Expo.sln
+
+      - name: Run API tests
+        run: dotnet test Thingstead.Aspire.Hosting.Expo.Tests/Thingstead.Aspire.Hosting.Expo.Tests.csproj --verbosity normal

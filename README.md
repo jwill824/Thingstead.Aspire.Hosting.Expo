@@ -1,58 +1,49 @@
 # Thingstead.Aspire.Hosting.Expo
 
-Helpers to integrate expo with Aspire hosting.
+Helpers to integrate Expo with Aspire hosting.
 
 ## Overview
 
-This project produces a NuGet package and publishes it to GitHub Packages via GitHub Actions. The workflow automatically applies semantic versioning and creates GitHub Releases with release notes.
+This project provides a small library with helpers to add an Expo frontend as a container resource to an Aspire distributed application. It packages small runtime assets (a `Dockerfile`, an entrypoint script and optional instrumentation) into the NuGet package so consumers only need to point at their local project folder as the Docker build context.
+
+The project produces a NuGet package and the repository contains GitHub Actions workflows that apply semantic versioning and publish packages to GitHub Packages.
 
 ## Usage
 
-The following snippet shows a typical usage pattern. Add a parameter to hold the ngrok auth token,
-add an `Expo` resource, configure the default forwarding command, and wait for the public URL.
+Typical usage is to create an `ExpoOptions` instance, point `BuildContext` at your Expo project's folder, and call `AddExpo(...)` on your distributed application builder. The library will register an HTTP endpoint, set environment variables used by the packaged Dockerfile and provide a command to generate/open a QR code for the published URL.
+
+Example (conceptual):
 
 ```csharp
+var expoOptions = new ExpoOptions
+{
+    ResourceName = "expo",
+    BuildContext = "../MyExpoApp",
+    UriCallback = () => "https://example.com",
+    Port = 8082,
+    TargetPort = 8082
+};
 
+builder.AddExpo(expoOptions);
 ```
 
-## Consuming the package and managing a local PAT (1Password)
+The library is intentionally lightweight; `AddExpo` accepts a consumer-supplied build context and supplies the packaged `Dockerfile` as the override Dockerfile path so COPY instructions targeting the entrypoint and instrumentation succeed even when the consumer doesn't include those files.
 
-This repository provides `NuGet.config.template` with the GitHub Packages feed URL and `packageSourceMapping` for `Thingstead.Aspire.Hosting.Ngrok`. Do NOT commit a `NuGet.config` that contains credentials.
+## Consuming the package
 
-Recommended minimal flow (manual PAT insertion via 1Password):
+This repository provides `NuGet.config.template` with the GitHub Packages feed URL. Do NOT commit a `NuGet.config` that contains credentials.
+
+Recommended minimal flow (manual PAT insertion via a password manager):
 
 1. Create a GitHub Personal Access Token (PAT) with the minimum scope you need:
    - For consuming packages: `read:packages`
    - For publishing packages: `write:packages` (and add `repo` or other scopes only if required)
 
-2. Store the PAT in 1Password (or another secret manager). Name the item `GitHub NuGet PAT` or similar.
+2. Store the PAT in your password manager and copy it when needed.
 
-3. Retrieve the PAT using the 1Password CLI and copy it to your clipboard or paste it directly into a `NuGet.config` copied from the template.
+3. Create a local `NuGet.config` from `NuGet.config.template` and paste the token into the credentials block (do NOT commit this file).
 
-Example `op` commands (1Password CLI):
-
-```bash
-# Simple field fetch (if item name is exactly 'GitHub NuGet PAT')
-op item get "GitHub NuGet PAT" --field password
-
-# Or, fetch JSON and extract the password field (robust for scripts)
-op item get "GitHub NuGet PAT" --format json | jq -r '.fields[] | select(.name=="password") | .value'
-```
-
-4. Create a local `NuGet.config` from the template and paste the token into the credentials block (do NOT commit this file).
-
-Example (edit a copy of `NuGet.config.template` and replace placeholders):
-
-```xml
-<packageSourceCredentials>
-  <github>
-    <add key="Username" value="OWNER" />
-    <add key="ClearTextPassword" value="<PASTE_TOKEN_HERE>" />
-  </github>
-</packageSourceCredentials>
-```
-
-5. Run the add/restore command locally:
+4. Restore or add the package locally:
 
 ```bash
 DOTNET_CLI_TELEMETRY_OPTOUT=1 dotnet restore
@@ -60,55 +51,35 @@ DOTNET_CLI_TELEMETRY_OPTOUT=1 dotnet restore
 dotnet add package Thingstead.Aspire.Hosting.Expo --version 0.1.0
 ```
 
-## Semantic versioning (automated)
+## How the Dockerfile and entrypoint work
 
-The workflow follows semantic versioning (semver) and uses Conventional Commit heuristics to determine the next version when you push to `main`:
+- `Dockerfile` (packaged and embedded): the project includes a small Node-based image that installs dependencies and runs `npx expo start` exposing the configured port. The library ships this `Dockerfile` as an embedded resource and sets it as the override dockerfile path when building the consumer project.
 
-- Breaking changes (commit message contains `BREAKING CHANGE` or a `!` in the header) → major bump
-- `feat(...)` or `feat:` commit headers → minor bump
-- Everything else → patch bump
+- `docker-entrypoint.sh` (packaged and embedded): the entrypoint script starts the Expo packager, waits until the packager HTTP endpoint is reachable (polling for readiness), and then waits for the packager process. The extension will ensure this script is present in the build context so Docker `COPY` instructions referencing it succeed.
 
-If there are no prior `vMAJOR.MINOR.PATCH` tags, the workflow starts at `0.1.0`.
+When `AddExpo` runs it extracts the embedded resources to a temporary directory and then either points Docker at the consumer's build context directly or creates a temporary merged context containing the consumer files plus the embedded `docker-entrypoint.sh` (if they are missing from the consumer's folder). This ensures the packaged `Dockerfile` can `COPY` these files during `docker build`.
 
-When a version is determined the workflow will:
+Files are extracted to `$(Temp)/aspire-expo-resources/<assemblyName>` and the library attempts to set the executable bit on Unix-like systems for the entrypoint script.
 
-- create and push an annotated tag `vMAJOR.MINOR.PATCH`
-- pack the project with that version
-- publish the package to GitHub Packages
-- create a GitHub Release and attach the produced `.nupkg` as a release asset
+## Project layout and important files
 
-If you prefer a manual release instead, you can create and push a tag (for example `v1.2.0`) and the workflow will use that tag's version.
+- `Dockerfile` — Node-based image used for development and packaging; embedded into the NuGet package.
+- `docker-entrypoint.sh` — Entrypoint script that launches the Expo packager and waits for readiness.
+- `ExpoOptions.cs` — Options POCO used by `AddExpo` (BuildContext, Port, TargetPort, UriCallback).
+- `Extensions/ExpoResourceBuilderExtensions.cs` — Extension methods that add/configure the Expo container resource and register the QR generation command.
+- `Utils/FileHelpers.cs` — Helpers used for extracting embedded resources and copying directories.
+- `Utils/QrUtil.cs` — QR generation helper used by the `WithQrCommand` command.
 
-> [!WARNING]
-> Never commit `NuGet.config` containing `ClearTextPassword` to source control. Keep credentials in your password manager or Keychain and use the template in this repo.
+## Running tests
 
-### How to influence version bumps
-
-Use Conventional Commit style messages to influence the bump type:
-
-- `feat:` — new feature → minor bump
-- `fix:` — bug fix → patch bump
-- Add `BREAKING CHANGE:` in the commit body or use `!` in the header (for example `feat!: ...`) → major bump
-
-Examples:
+Run tests locally with:
 
 ```bash
-# feature -> bump minor
-git commit -m "feat(api): add new connection option"
-
-# fix -> bump patch
-git commit -m "fix(docs): correct README example"
-
-# breaking change -> bump major
-git commit -m "feat!: change public API" -m "BREAKING CHANGE: args changed"
+dotnet test Thingstead.Aspire.Hosting.Expo.Tests
 ```
 
-### Dry-run
+The test project includes unit tests that exercise `ExpoOptions`, `FileHelpers`, `QrUtil` and private helpers on `ExpoResourceBuilderExtensions` via reflection so the library doesn't need to pull in runtime infrastructure.
 
-You can test the release pipeline without creating tags or publishing by using the workflow_dispatch input `dry_run=true` in the Actions UI. That runs `semantic-release --dry-run` and prints the computed version and proposed changelog.
+## Contributing
 
-### Resources
-
-- [semantic-release (npm)](https://www.npmjs.com/package/semantic-release)
-- [semantic-release docs](https://semantic-release.gitbook.io/)
-- [Conventional Commits](https://www.conventionalcommits.org/)
+See `CONTRIBUTING.md` for contribution guidelines, testing instructions, and release details.
