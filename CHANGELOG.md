@@ -1,3 +1,17 @@
+# [2.0.0](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/compare/v1.1.14...v2.0.0) (2025-12-18)
+
+
+### Features
+
+* refactoring layout and removing some unneeded parameters ([c7b3133](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/commit/c7b31334400431c94d897b8daf9604694d0fffc4))
+* refactoring layout and removing some unneeded parameters ([c6cb365](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/commit/c6cb365914f908f093d03d2384dec6b34c3da3c1))
+
+
+### BREAKING CHANGES
+
+* updating the public method signature
+* updating the public method signature
+
 ## [1.1.14](https://github.com/jwill824/Thingstead.Aspire.Hosting.Expo/compare/v1.1.13...v1.1.14) (2025-11-10)
 
 
